@@ -1,21 +1,21 @@
-"""app URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+# 1. Comentário de documentação (já está lá)
 """
-from django.contrib import admin
-from django.urls import path
+app URL Configuration
+...
+"""
 
+# 2. IMPORTS - ISSO É O IMPORTANTE!
+from django.contrib import admin
+from django.urls import path, include  # ← Nota o 'include'
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
+# 3. UMA ÚNICA lista urlpatterns
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/schema/', SpectacularAPIView.as_view(), name='api-schema'),
+    path(
+        'api/docs/',
+        SpectacularSwaggerView.as_view(url_name='api-schema'),
+        name='api-docs',
+    ),
 ]
