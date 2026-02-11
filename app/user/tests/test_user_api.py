@@ -8,13 +8,16 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
+
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
 ME_URL = reverse('user:me')
 
+
 def create_user(**params):
     """Cria e retorna um novo usuário."""
     return get_user_model().objects.create_user(**params)
+
 
 class PublicUserApiTests(TestCase):
     """Testa as funcionalidades públicas da API de usuário."""
@@ -37,13 +40,11 @@ class PublicUserApiTests(TestCase):
         self.assertTrue(user.check_password(payload['password']))
         self.assertEqual(user.name, payload['name'])
 
-    # ... outros testes public (token, etc.) se tiver
+    def test_retrieve_user_unauthorized(self):
+        """Testa que autenticação é necessária para usuários."""
+        res = self.client.get(ME_URL)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-# SEU CURSO AQUI (traduzido)
-def test_retrieve_user_unauthorized(self):
-    """Testa que autenticação é necessária para usuários."""
-    res = self.client.get(ME_URL)
-    self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class PrivateUserApiTests(TestCase):
     """Testa requisições da API que precisam de autenticação."""
@@ -55,7 +56,7 @@ class PrivateUserApiTests(TestCase):
             name='Test Name',
         )
         self.client = APIClient()
-        self.client.force_authentication(user=self.user)
+        self.client.force_authenticate(user=self.user)  # <--- CORRIGIDO AQUI
 
     def test_retrieve_profile_success(self):
         """Testa buscar perfil de usuário logado."""
@@ -75,6 +76,7 @@ class PrivateUserApiTests(TestCase):
         """Testa atualizar perfil do usuário autenticado."""
         payload = {'name': 'Updated name', 'password': 'newpassword123'}
         res = self.client.patch(ME_URL, payload)
+        
         self.user.refresh_from_db()
         self.assertEqual(self.user.name, payload['name'])
         self.assertTrue(self.user.check_password(payload['password']))
