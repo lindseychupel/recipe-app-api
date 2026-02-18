@@ -1,15 +1,16 @@
-# 1. Comentário de documentação (já está lá)
 """
 app URL Configuration
 ...
 """
 
-# 2. IMPORTS - ISSO É O IMPORTANTE!
+
+# IMPORTS
 from django.contrib import admin
-from django.urls import path, include  # ← Nota o 'include'
+from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-# 3. UMA ÚNICA lista urlpatterns
+
+# Lista de URLs
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/schema/', SpectacularAPIView.as_view(), name='api-schema'),
@@ -19,4 +20,5 @@ urlpatterns = [
         name='api-docs',
     ),
     path('api/user/', include('user.urls')),
+    path('api/recipe/', include('recipe.urls')),
 ]
