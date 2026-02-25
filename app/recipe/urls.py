@@ -21,7 +21,8 @@ router = DefaultRouter()
 # PUT /recipes/1/ -> Atualiza receita 1
 # DELETE /recipes/1/ -> Deleta receita 1
 router.register('recipes', views.RecipeViewSet)
-
+router.register('tags', views.TagViewSet)
+router.register('ingredients', views.IngredientViewSet)
 # Define o nome do app para usar no reverse()
 # Ex: reverse('recipe:recipe-list')
 app_name = 'recipe'
