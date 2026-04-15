@@ -1,19 +1,30 @@
+from django.conf import settings
+import uuid
+import os 
+
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin,
 )
-from django.conf import settings
 
+
+
+def recipe_image_file_path(instance, filename):
+    """Gera o caminho do arquivo para uma nova imagem de receita."""
+    # Usa a extensão do arquivo original
+    ext = filename.split('.')[-1]
+    # Gera o caminho: uploads/recipe/uuid.ext
+    return f'uploads/recipe/{uuid.uuid4()}.{ext}'
 
 class UserManager(BaseUserManager):
-    """Manager for users."""
+    """Gerenciador de usuários."""
 
     def create_user(self, email, password=None, **extra_fields):
-        """Create, save and return a new user."""
+        """Cria, salva e retorna um novo usuário."""
         if not email:
-            raise ValueError('The Email field must be set')
+            raise ValueError('O campo Email deve ser informado')
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -21,7 +32,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        """Create, save and return a new superuser."""
+        """Cria, salva e retorna um novo superusuário."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -29,7 +40,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    """User in the system."""
+    """Usuário do sistema."""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -41,7 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Tag(models.Model):
-    """Tag for filtering recipes."""
+    """Tag para filtrar receitas."""
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -53,7 +64,7 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Ingredient for recipes."""
+    """Ingrediente para receitas."""
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -65,7 +76,7 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    """Recipe object."""
+    """Objeto receita."""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
