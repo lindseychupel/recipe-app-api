@@ -1,10 +1,10 @@
-"""
+""""
 Views for the recipe APIs
 """
 from rest_framework import (
     viewsets,
     mixins,
-    status
+    status,
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -26,54 +26,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def test_filter_by_tags(self):
-        """Test filtering recipes by tags."""
-        r1 = create_recipe(user=self.user, title='Thai Vegetable Curry')
-        r2 = create_recipe(user=self.user, title='Aubergine with Tahini')
-        tag1 = Tag.objects.create(user=self.user, name='Vegan')
-        tag2 = Tag.objects.create(user=self.user, name='Vegetarian')
-        r1.tags.add(tag1)
-        r2.tags.add(tag2)
-        r3 = create_recipe(user=self.user, title='Fish and chips')
+    def _params_to_ints(self, qs):
+        """Converte uma lista de strings em lista de inteiros."""
+        return [int(str_id) for str_id in qs.split(',')]
 
-        params = {'tags': f'{tag1.id},{tag2.id}'}
-        res = self.client.get(RECIPES_URL, params)
+    def get_queryset(self):
+        """Recupera receitas para o usuário autenticado."""
+        tags = self.request.query_params.get('tags')
+        ingredients = self.request.query_params.get('ingredients')
+        queryset = self.queryset
 
-        s1 = RecipeSerializer(r1)
-        s2 = RecipeSerializer(r2)
-        s3 = RecipeSerializer(r3)
-        self.assertIn(s1.data, res.data)
-        self.assertIn(s2.data, res.data)
-        self.assertNotIn(s3.data, res.data)
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
 
-    def test_filter_by_ingredients(self):
-        """Test filtering recipes by ingredients."""
-        r1 = create_recipe(user=self.user, title='Posh Beans on Toast')
-        r2 = create_recipe(user=self.user, title='Chicken Cacciatore')
-        in1 = Ingredient.objects.create(user=self.user, name='Feta Cheese')
-        in2 = Ingredient.objects.create(user=self.user, name='Chicken')
-        r1.ingredients.add(in1)
-        r2.ingredients.add(in2)
-        r3 = create_recipe(user=self.user, title='Red Lentil Daal')
+        if ingredients:
+            ingredient_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredient_ids)
 
-        params = {'ingredients': f'{in1.id},{in2.id}'}
-        res = self.client.get(RECIPES_URL, params)
-
-        s1 = RecipeSerializer(r1)
-        s2 = RecipeSerializer(r2)
-        s3 = RecipeSerializer(r3)
-        self.assertIn(s1.data, res.data)
-        self.assertIn(s2.data, res.data)
-        self.assertNotIn(s3.data, res.data)
+        return queryset.filter(user=self.request.user).order_by('-id').distinct()
 
     def get_serializer_class(self):
         """Retorna a classe serializer apropriada para a requisição."""
         if self.action == 'retrieve':
             return serializers.RecipeDetailSerializer
-        
         elif self.action == 'upload_image':
             return serializers.RecipeImageSerializer
-        
+
         return self.serializer_class
 
     def perform_create(self, serializer):
@@ -82,7 +61,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST'], detail=True, url_path='upload-image')
     def upload_image(self, request, pk=None):
-        """Upload an image to recipe."""
+        """Faz upload de imagem para a receita."""
         recipe = self.get_object()
         serializer = self.get_serializer(recipe, data=request.data)
 
@@ -91,6 +70,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
                             mixins.UpdateModelMixin,
@@ -103,8 +83,8 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
     def get_queryset(self):
         """Filtra o queryset para o usuário autenticado."""
         return self.queryset.filter(user=self.request.user).order_by('-name')
-    
-    
+
+
 class TagViewSet(BaseRecipeAttrViewSet):
     """Manage tags in the database."""
     serializer_class = serializers.TagSerializer
