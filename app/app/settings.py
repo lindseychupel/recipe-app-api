@@ -16,11 +16,16 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = 'django-insecure-^m3b*5y0tuegx*9p-7a$k*m6ic7nvq+=*0)m^_o_i=5!=(lp*%'
-
+SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
 DEBUG = True
 
 ALLOWED_HOSTS = []
+ALLOWED_HOSTS.extend(
+    filter(
+        None,
+        os.environ.get('ALLOWED_HOSTS', '').split(','),
+    )
+)
 
 
 INSTALLED_APPS = [
