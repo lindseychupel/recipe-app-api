@@ -6,16 +6,16 @@ services:
       context: .
     restart: always #p se travar o app ele reiniciar 
     volumes:
-      - static_data:/vol/web
+      - static_data:/vol/web # p servir dados estáticos 
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
+      - DB_USER=${DB_USER}            #config do serviço em execução
       - DB_PASS=${DB_PASS}
       - SECRET_KEY=${DJANGO_SECRET_KEY}
       - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
-    depends_on:
-      - db
+    depends_on:     
+      - db          # pra garantir q o banco de dados inicie primeiro
 
   db:
     image: postgres:13-alpine
