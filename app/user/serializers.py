@@ -2,8 +2,8 @@
 Serializadores para a view da API de usuário.
 """
 from django.contrib.auth import (
-    get_user_model,
     authenticate,
+    get_user_model,
 )
 from django.utils.translation import gettext as _
 
@@ -21,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Cria e retorna um usuário com senha criptografada."""
         return get_user_model().objects.create_user(**validated_data)
-    
+
     def update(self, instance, validated_data):
         """Update and return user."""
         password = validated_data.pop('password', None)
@@ -33,8 +33,10 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
+
 class AuthTokenSerializer(serializers.Serializer):
     """Serializador para o token de autenticação do usuário."""
+
     email = serializers.EmailField()
     password = serializers.CharField(
         style={'input_type': 'password'},
@@ -50,9 +52,16 @@ class AuthTokenSerializer(serializers.Serializer):
             username=email,
             password=password,
         )
+
         if not user:
-            msg = _('Não foi possível autenticar com as credenciais fornecidas.')
-            raise serializers.ValidationError(msg, code='authorization')
+            msg = _(
+                'Não foi possível autenticar com as credenciais '
+                'fornecidas.'
+            )
+            raise serializers.ValidationError(
+                msg,
+                code='authorization',
+            )
 
         attrs['user'] = user
         return attrs

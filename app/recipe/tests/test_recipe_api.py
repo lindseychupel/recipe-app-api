@@ -1,6 +1,4 @@
-"""
-Testes para APIs de receitas.
-"""
+"""Testes para APIs de receitas."""
 import os
 import tempfile
 from decimal import Decimal
@@ -15,16 +13,14 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import (
+    Ingredient,
     Recipe,
     Tag,
-    Ingredient,
 )
-
 from recipe.serializers import (
-    RecipeSerializer,
     RecipeDetailSerializer,
+    RecipeSerializer,
 )
-
 
 RECIPES_URL = reverse('recipe:recipe-list')
 
@@ -281,7 +277,10 @@ class PrivateRecipeApiTests(TestCase):
 
     def test_update_recipe_assign_tag(self):
         """Testa atribuir uma tag existente ao atualizar uma receita."""
-        tag_breakfast = Tag.objects.create(user=self.user, name='Café da manhã')
+        tag_breakfast = Tag.objects.create(
+            user=self.user,
+            name='Café da manhã',
+        )
         recipe = create_recipe(user=self.user)
         recipe.tags.add(tag_breakfast)
 
@@ -364,7 +363,10 @@ class PrivateRecipeApiTests(TestCase):
         res = self.client.patch(url, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        new_ingredient = Ingredient.objects.get(user=self.user, name='Limões')
+        new_ingredient = Ingredient.objects.get(
+            user=self.user,
+            name='Limões',
+        )
         self.assertIn(new_ingredient, recipe.ingredients.all())
 
     def test_update_recipe_assign_ingredient(self):
@@ -373,7 +375,10 @@ class PrivateRecipeApiTests(TestCase):
         recipe = create_recipe(user=self.user)
         recipe.ingredients.add(ingredient1)
 
-        ingredient2 = Ingredient.objects.create(user=self.user, name='Pimenta chili')
+        ingredient2 = Ingredient.objects.create(
+            user=self.user,
+            name='Pimenta chili',
+        )
         payload = {'ingredients': [{'name': 'Pimenta chili'}]}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload, format='json')
@@ -469,5 +474,4 @@ class ImageUploadTests(TestCase):
         """Testa fazer upload de uma imagem inválida."""
         url = image_upload_url(self.recipe.id)
         res = self.client.post(url, {'image': 'notimage'}, format='multipart')
-
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

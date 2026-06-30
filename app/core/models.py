@@ -1,6 +1,5 @@
 from django.conf import settings
 import uuid
-import os 
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -10,13 +9,11 @@ from django.contrib.auth.models import (
 )
 
 
-
 def recipe_image_file_path(instance, filename):
     """Gera o caminho do arquivo para uma nova imagem de receita."""
-    # Usa a extensão do arquivo original
     ext = filename.split('.')[-1]
-    # Gera o caminho: uploads/recipe/uuid.ext
     return f'uploads/recipe/{uuid.uuid4()}.{ext}'
+
 
 class UserManager(BaseUserManager):
     """Gerenciador de usuários."""
@@ -35,12 +32,12 @@ class UserManager(BaseUserManager):
         """Cria, salva e retorna um novo superusuário."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-
         return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     """Usuário do sistema."""
+
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -53,6 +50,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Tag(models.Model):
     """Tag para filtrar receitas."""
+
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -65,6 +63,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     """Ingrediente para receitas."""
+
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -77,6 +76,7 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     """Objeto receita."""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

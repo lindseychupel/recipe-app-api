@@ -1,9 +1,7 @@
-"""
-Testes para APIs de receitas.
-"""
-from decimal import Decimal
-import tempfile
+"""Testes para APIs de receitas."""
 import os
+import tempfile
+from decimal import Decimal
 
 from PIL import Image
 
@@ -15,14 +13,13 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import (
+    Ingredient,
     Recipe,
     Tag,
-    Ingredient,
 )
-
 from recipe.serializers import (
-    RecipeSerializer,
     RecipeDetailSerializer,
+    RecipeSerializer,
 )
 
 
@@ -255,9 +252,9 @@ class PrivateRecipeApiTests(TestCase):
         recipe = recipes[0]
         self.assertEqual(recipe.ingredients.count(), 2)
         self.assertIn(ingredient, recipe.ingredients.all())
-        for ingredient in payload['ingredients']:
+        for ingredient_item in payload['ingredients']:
             exists = recipe.ingredients.filter(
-                name=ingredient['name'],
+                name=ingredient_item['name'],
                 user=self.user,
             ).exists()
             self.assertTrue(exists)
@@ -271,7 +268,10 @@ class PrivateRecipeApiTests(TestCase):
         res = self.client.patch(url, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        new_ingredient = Ingredient.objects.get(user=self.user, name='Limão Taiti')
+        new_ingredient = Ingredient.objects.get(
+            user=self.user,
+            name='Limão Taiti',
+        )
         self.assertIn(new_ingredient, recipe.ingredients.all())
 
     def test_update_recipe_assign_ingredient(self):
@@ -280,7 +280,10 @@ class PrivateRecipeApiTests(TestCase):
         recipe = create_recipe(user=self.user)
         recipe.ingredients.add(ingredient1)
 
-        ingredient2 = Ingredient.objects.create(user=self.user, name='Pimenta Malagueta')
+        ingredient2 = Ingredient.objects.create(
+            user=self.user,
+            name='Pimenta Malagueta',
+        )
         payload = {'ingredients': [{'name': 'Pimenta Malagueta'}]}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload, format='json')
@@ -324,7 +327,10 @@ class PrivateRecipeApiTests(TestCase):
 
     def test_filter_by_ingredients(self):
         """Testa filtrar receitas por ingredientes."""
-        r1 = create_recipe(user=self.user, title='Feijão Especial na Torrada')
+        r1 = create_recipe(
+            user=self.user,
+            title='Feijão Especial na Torrada',
+        )
         r2 = create_recipe(user=self.user, title='Frango Caçador')
         in1 = Ingredient.objects.create(user=self.user, name='Queijo Feta')
         in2 = Ingredient.objects.create(user=self.user, name='Frango')
