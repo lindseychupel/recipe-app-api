@@ -6,7 +6,7 @@ Sobre o projeto
 
 Desenvolvi esta API com a proposta de construir uma base sólida para aplicações backend que precisam de autenticação, modelagem relacional, organização de regras de negócio e exposição de endpoints REST. A aplicação permite gerenciar receitas com título, descrição, tempo de preparo, preço, link de referência, ingredientes, tags e imagem.[2][3]
 
-Além da parte funcional, também dei atenção à organização do projeto, qualidade de código e previsibilidade do ambiente. Por isso, a aplicação utiliza PostgreSQL, Docker, testes automatizados e lint, o que ajuda a manter o desenvolvimento mais consistente e próximo de um cenário real.[2][4]
+Além da parte funcional, também dei atenção à organização do projeto, qualidade de código e previsibilidade do ambiente. Por isso, a aplicação utiliza PostgreSQL, Docker, testes automatizados e lint, o que ajuda a manter o desenvolvimento consistente.
 
 Funcionalidades
 
@@ -49,7 +49,7 @@ Como executar:
 
 - Clonar o repositório:
 
-git clone <url-do-repositorio>
+git clone https://github.com/lindseychupel/recipe-app-api.git
 cd recipe-app-api
 
 - Subir os containers:
@@ -91,7 +91,16 @@ A documentação da API foi preparada com `drf-spectacular`, biblioteca usada pa
 
 Deploy
 
-A aplicação também foi pensada para execução fora do ambiente local, com ambiente containerizado e estrutura adequada para publicação em nuvem. O deploy em AWS complementa o projeto ao mostrar não só a implementação da API, mas também a preocupação com entrega, padronização de ambiente e execução em infraestrutura.
+O projeto foi implantado em uma instância AWS EC2 utilizando Docker, uWSGI e PostgreSQL durante o desenvolvimento e validação da infraestrutura. A instância não permanece em execução para evitar custos contínuos, mas toda a configuração necessária para executar a aplicação localmente está disponível neste repositório.
+
+A aplicação foi publicada em uma instância AWS EC2 utilizando:
+
+- Ubuntu Server
+- Docker
+- Docker Compose
+- uWSGI
+- Nginx
+- PostgreSQL
 
 Endpoints principais
 
